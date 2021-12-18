@@ -1,5 +1,5 @@
 {
-    "name": "oat-sa/extension-tao-delivery-rdf",
+    "name": "openthinlabs/extension-tao-delivery-rdf",
     "description": "Manages deliveries using the ontology",
     "type": "tao-extension",
     "authors": [
