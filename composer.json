@@ -19,10 +19,17 @@
         "tao-extension-name": "taoDeliveryRdf"
     },
     "minimum-stability": "dev",
+    "prefer-stable" : true,
+    "repositories": [
+        {
+          "type": "vcs",
+          "url": "git@github.com:openthinklabs/oatbox-extension-installer.git"
+        }
+    ],    
     "require": {
         "openthinklabs/oatbox-extension-installer": "~1.1||dev-master",
-        "openthinklabs/generis": ">=14.0.0",
-        "openthinklabs/tao-core": ">=48.58.0",
+        "openthinklabs/generis": "15.13.1.4",
+        "openthinklabs/tao-core": "48.75.0.6",
         "openthinklabs/extension-tao-delivery": ">=15.0.0",
         "openthinklabs/extension-tao-group": ">=7.0.0",
         "openthinklabs/extension-tao-item": ">=11.0.0",
