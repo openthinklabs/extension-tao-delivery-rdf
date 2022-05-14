@@ -15,18 +15,29 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2021-2022 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2022 (original work) Open Assessment Technologies SA;
+ *
+ * @author Sergei Mikhailov <sergei.mikhailov@taotesting.com>
  */
 
 declare(strict_types=1);
 
-namespace oat\taoDeliveryRdf\model\DataStore\Metadata;
+namespace oat\taoDeliveryRdf\model\Delivery\Presentation\Web\RequestHandler;
 
-use oat\tao\model\metadata\compiler\AdvancedJsonResourceMetadataCompiler;
+use Psr\Http\Message\ServerRequestInterface;
 
-/**
- * @deprecated use oat\tao\model\metadata\compiler\AdvancedJsonResourceMetadataCompiler
- */
-class JsonMetadataCompiler extends AdvancedJsonResourceMetadataCompiler
+final class JsonDeliveryPatchRequestHandler implements DeliveryPatchRequestHandlerInterface
 {
+    public function isApplicable(ServerRequestInterface $request): bool
+    {
+        return stripos($request->getHeaderLine('Content-Type'), 'application/json') !== false;
+    }
+
+    public function handle(ServerRequestInterface $request): array
+    {
+        return (array)json_decode(
+            (string)$request->getBody(),
+            true
+        );
+    }
 }

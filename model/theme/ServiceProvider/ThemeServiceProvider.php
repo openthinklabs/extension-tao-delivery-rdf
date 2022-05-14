@@ -15,36 +15,38 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2022 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
 
-namespace oat\taoDeliveryRdf\model\DataStore\ServiceProvider;
+namespace oat\taoDeliveryRdf\model\theme\ServiceProvider;
 
+use oat\generis\model\data\Ontology;
 use oat\generis\model\DependencyInjection\ContainerServiceProviderInterface;
-use oat\tao\model\export\JsonLdExport;
-use oat\tao\model\export\Metadata\JsonLd\JsonLdTripleEncoderProxy;
-use oat\taoDeliveryRdf\model\DataStore\Metadata\JsonMetadataCompiler;
+use oat\tao\model\theme\ThemeServiceInterface;
+use oat\taoDeliveryRdf\model\theme\DeliveryThemeDetailsProvider;
+use oat\taoDeliveryRdf\model\theme\Service\ThemeAutoSetService;
+use oat\taoQtiTest\model\Domain\Model\QtiTestRepositoryInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
-class DataStoreServiceProvider implements ContainerServiceProviderInterface
+class ThemeServiceProvider implements ContainerServiceProviderInterface
 {
     public function __invoke(ContainerConfigurator $configurator): void
     {
         $services = $configurator->services();
 
-        /**
-         * @deprecated use oat\tao\model\metadata\compiler\AdvancedJsonResourceMetadataCompiler
-         */
-        $services->set(JsonMetadataCompiler::class, JsonMetadataCompiler::class)
+        $services
+            ->set(ThemeAutoSetService::class, ThemeAutoSetService::class)
             ->public()
             ->args(
                 [
-                    service(JsonLdTripleEncoderProxy::class),
-                    service(JsonLdExport::class),
+                    service(Ontology::SERVICE_ID),
+                    service(DeliveryThemeDetailsProvider::class),
+                    service(QtiTestRepositoryInterface::class),
+                    service(ThemeServiceInterface::class),
                 ]
             );
     }
