@@ -15,18 +15,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2021-2022 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2022 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
 
-namespace oat\taoDeliveryRdf\model\DataStore\Metadata;
+namespace oat\taoDeliveryRdf\model\theme\Exception;
 
-use oat\tao\model\metadata\compiler\AdvancedJsonResourceMetadataCompiler;
+use Exception;
 
-/**
- * @deprecated use oat\tao\model\metadata\compiler\AdvancedJsonResourceMetadataCompiler
- */
-class JsonMetadataCompiler extends AdvancedJsonResourceMetadataCompiler
+class ThemeAutoSetNotSupported extends Exception
 {
 }
