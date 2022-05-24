@@ -42,6 +42,7 @@ use oat\generis\model\OntologyRdfs;
 use oat\taoDeliveryRdf\model\DeliveryFactory;
 use oat\taoDeliveryRdf\model\tasks\CompileDelivery;
 use oat\taoDeliveryRdf\model\tasks\UpdateDelivery;
+use oat\generis\model\OntologyAwareTrait;
 use Request;
 use RuntimeException;
 use tao_models_classes_dataBinding_GenerisFormDataBindingException as FormDataBindingException;
@@ -49,6 +50,7 @@ use tao_models_classes_dataBinding_GenerisFormDataBindingException as FormDataBi
 class RestDelivery extends \tao_actions_RestController
 {
     use TaskLogActionTrait;
+    use OntologyAwareTrait;
 
     const REST_DELIVERY_TEST_ID        = 'test';
     const REST_DELIVERY_SEARCH_PARAMS  = 'searchParams';
@@ -554,4 +556,14 @@ class RestDelivery extends \tao_actions_RestController
     {
         return $this->getPsrContainer()->get(DeliveryPatchRequestHandler::class);
     }
+
+    public function assignDeliveryToGroup()
+    {
+        $resource = $this->getResource($this->getRequestParameter('resourceUri')); //Group Resource URI 
+        $property = $this->getProperty("http://www.tao.lu/Ontologies/TAOGroup.rdf#Deliveries");
+        $resource_delivery_uri = [$this->getProperty($this->getRequestParameter('resourceDeliveryUri'))]; //Delivery URI
+        $success = $resource->editPropertyValues($property, $resource_delivery_uri);
+
+        return $this->returnJson(['saved'  => $success ]);
+    }        
 }
