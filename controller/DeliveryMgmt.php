@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2014-2019 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2014-2024 (original work) Open Assessment Technologies SA;
  *
  *
  */
@@ -26,9 +26,13 @@ use oat\generis\model\kernel\persistence\smoothsql\search\ComplexSearchService;
 use oat\generis\model\OntologyRdfs;
 use oat\oatbox\event\EventManager;
 use oat\tao\helpers\Template;
+use oat\tao\model\accessControl\RoleBasedContextRestrictAccess;
+use oat\tao\model\featureFlag\FeatureFlagCheckerInterface;
+use oat\tao\model\featureFlag\FeatureFlagChecker;
 use oat\tao\model\resources\ResourceWatcher;
 use oat\tao\model\TaoOntology;
 use oat\tao\model\taskQueue\TaskLogActionTrait;
+use oat\taoDacSimple\model\PermissionProvider;
 use oat\taoDelivery\model\AssignmentService;
 use oat\taoDelivery\model\execution\ServiceProxy;
 use oat\taoDeliveryRdf\model\Delivery\Presentation\Web\Form\DeliveryFormFactory;
@@ -53,6 +57,9 @@ use tao_helpers_form_FormContainer as FormContainer;
 class DeliveryMgmt extends \tao_actions_SaSModule
 {
     use TaskLogActionTrait;
+
+    private const FEATURE_FLAG_GROUPS_DISABLED = 'FEATURE_FLAG_GROUPS_DISABLED';
+    private const FEATURE_FLAG_TEST_TAKERS_DISABLED = 'FEATURE_FLAG_TEST_TAKERS_DISABLED';
 
     /**
      * @return EventManager
@@ -122,12 +129,24 @@ class DeliveryMgmt extends \tao_actions_SaSModule
             $this->setData('exec', count($execs));
         }
 
-        // define the groups related to the current delivery
-        $property = $this->getProperty(GroupAssignment::PROPERTY_GROUP_DELIVERY);
-        $tree = \tao_helpers_form_GenerisTreeForm::buildReverseTree($delivery, $property);
-        $tree->setTitle(__('Assigned to'));
-        $tree->setTemplate(Template::getTemplate('widgets/assignGroup.tpl'));
-        $this->setData('groupTree', $tree->render());
+        $assignmentService = $this->getServiceLocator()->get(AssignmentService::SERVICE_ID);
+        if (!$this->isUserRestricted() && get_class($assignmentService) == GroupAssignment::class) {
+            // define the groups related to the current delivery
+            $property = $this->getProperty(GroupAssignment::PROPERTY_GROUP_DELIVERY);
+            $tree = \tao_helpers_form_GenerisTreeForm::buildReverseTree($delivery, $property);
+            $tree->setTitle(__('Assigned to'));
+            $tree->setTemplate(Template::getTemplate('widgets/assignGroup.tpl'));
+            $this->setData('groupTree', $tree->render());
+        }
+
+        $solarDesignEnabled = $this->getFeatureFlagChecker()->isEnabled(
+            FeatureFlagCheckerInterface::FEATURE_FLAG_SOLAR_DESIGN_ENABLED
+        );
+
+        $this->setData(
+            'ttdisabled',
+            $this->isUserRestricted() || $solarDesignEnabled
+        );
 
         // testtaker brick
         $this->setData('assemblyUri', $deliveryUri);
@@ -137,9 +156,10 @@ class DeliveryMgmt extends \tao_actions_SaSModule
         $excluded = $delivery->getPropertyValues($property);
         $this->setData('ttexcluded', count($excluded));
 
-        $users = $this->getServiceLocator()->get(AssignmentService::SERVICE_ID)->getAssignedUsers($deliveryUri);
+        $users = $assignmentService->getAssignedUsers($deliveryUri);
         $assigned = array_diff(array_unique($users), $excluded);
         $this->setData('ttassigned', count($assigned));
+
         $updatedAt = $this->getServiceLocator()->get(ResourceWatcher::SERVICE_ID)->getUpdatedAt($delivery);
         $this->setData('updatedAt', $updatedAt);
         $this->setData('formTitle', __('Properties'));
@@ -167,7 +187,12 @@ class DeliveryMgmt extends \tao_actions_SaSModule
         }
 
         $assigned = [];
-        foreach ($this->getServiceLocator()->get(AssignmentService::SERVICE_ID)->getAssignedUsers($assembly->getUri()) as $userId) {
+        $assignedUsers = $this
+            ->getServiceLocator()
+            ->get(AssignmentService::SERVICE_ID)
+            ->getAssignedUsers($assembly->getUri());
+
+        foreach ($assignedUsers as $userId) {
             if (!array_key_exists($userId, $excluded)) {
                 $user = $this->getResource($userId);
                 $assigned[$userId] = $user->getLabel();
@@ -196,9 +221,19 @@ class DeliveryMgmt extends \tao_actions_SaSModule
         }
 
         $assembly = $this->getCurrentInstance();
-        $success = $assembly->editPropertyValues($this->getProperty(DeliveryContainerService::PROPERTY_EXCLUDED_SUBJECTS), $jsonArray);
+        $success = $assembly->editPropertyValues(
+            $this->getProperty(DeliveryContainerService::PROPERTY_EXCLUDED_SUBJECTS),
+            $jsonArray
+        );
 
-        $this->getEventManager()->trigger(new DeliveryUpdatedEvent($assembly->getUri(), [DeliveryContainerService::PROPERTY_EXCLUDED_SUBJECTS => $jsonArray]));
+        $this->getEventManager()->trigger(
+            new DeliveryUpdatedEvent(
+                $assembly->getUri(),
+                [
+                    DeliveryContainerService::PROPERTY_EXCLUDED_SUBJECTS => $jsonArray,
+                ]
+            )
+        );
 
         $this->returnJson([
             'saved' => $success
@@ -220,11 +255,19 @@ class DeliveryMgmt extends \tao_actions_SaSModule
                     /** @var DeliveryFactory $deliveryFactoryResources */
                     $deliveryFactoryResources = $this->getServiceLocator()->get(DeliveryFactory::SERVICE_ID);
                     $initialProperties = $deliveryFactoryResources->getInitialPropertiesFromArray($myForm->getValues());
-                    return $this->returnTaskJson(CompileDelivery::createTask($test, $deliveryClass, $initialProperties));
+                    return $this->returnTaskJson(
+                        CompileDelivery::createTask(
+                            $test,
+                            $deliveryClass,
+                            $initialProperties
+                        )
+                    );
                 } catch (\Exception $e) {
                     return $this->returnJson([
                         'success' => false,
-                        'errorMsg' => $e instanceof \common_exception_UserReadableException ? $e->getUserMessage() : $e->getMessage(),
+                        'errorMsg' => $e instanceof \common_exception_UserReadableException
+                            ? $e->getUserMessage()
+                            : $e->getMessage(),
                         'errorCode' => $e->getCode(),
                     ]);
                 }
@@ -307,6 +350,15 @@ class DeliveryMgmt extends \tao_actions_SaSModule
         return parent::getTreeOptionsFromRequest($options);
     }
 
+    private function isUserRestricted()
+    {
+        return $this->getRoleBasedContextRestrictAccess()
+            ->isRestricted(
+                $this->getUserRoles(),
+                'ltiAuthoringLaunchRestrictRoles'
+            );
+    }
+
     protected function getExtraValidationRules(): array
     {
         return $this->getValidatorFactory()->createMultiple();
@@ -320,5 +372,14 @@ class DeliveryMgmt extends \tao_actions_SaSModule
     private function getDeliveryFormFactory(): DeliveryFormFactory
     {
         return $this->getPsrContainer()->get(DeliveryFormFactory::class);
+    }
+    private function getRoleBasedContextRestrictAccess(): RoleBasedContextRestrictAccess
+    {
+        return $this->getPsrContainer()->get(RoleBasedContextRestrictAccess::class);
+    }
+
+    private function getFeatureFlagChecker(): FeatureFlagCheckerInterface
+    {
+        return $this->getServiceLocator()->get(FeatureFlagChecker::class);
     }
 }

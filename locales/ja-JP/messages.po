@@ -1,26 +1,25 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: TAO 2021.10\n"
-"PO-Revision-Date: 2021-11-17T13:27:53\n"
-"Last-Translator: TAO Translation Team <translation@tao.lu>\n"
-"MIME-Version: 1.0\n"
-"Language: ja-JP\n"
-"sourceLanguage: en-US\n"
-"targetLanguage: ja-JP\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Basepath: ../../\n"
-"X-Poedit-KeywordsList: __\n"
-"X-Poedit-SearchPath-0: .\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: tao-open-source\n"
+"X-Crowdin-Project-ID: 590867\n"
+"X-Crowdin-Language: ja\n"
+"X-Crowdin-File: /[oat-sa.extension-tao-delivery-rdf] develop/locales/en-US/messages.po\n"
+"X-Crowdin-File-ID: 797\n"
+"Project-Id-Version: tao-open-source\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language-Team: Japanese\n"
+"Language: ja_JP\n"
+"PO-Revision-Date: 2023-12-04 16:25\n"
 
 msgid "%s completed"
-msgstr ""
+msgstr "%s 完了"
 
 msgid "%s test-taker(s) are excluded."
 msgstr ""
 
 msgid "Access deliveries as a guest"
-msgstr ""
+msgstr "ゲストとしてデリバリにアクセス"
 
 msgid "An error occured during the import"
 msgstr ""
@@ -44,15 +43,12 @@ msgid "Available until %s"
 msgstr ""
 
 msgid "Cancel"
-msgstr ""
+msgstr "キャンセル"
 
 msgid "Class successfully created."
-msgstr ""
+msgstr "クラスが作成されました。"
 
 msgid "Continue deleting of delivery \"%s\"."
-msgstr ""
-
-msgid "Continue try to sync metadata of delivery \"%s\"."
 msgstr ""
 
 msgid "Create a new delivery"
@@ -61,19 +57,16 @@ msgstr ""
 msgid "Create a test"
 msgstr ""
 
-msgid "DataStore sync retry for delivery \"%s\"."
-msgstr ""
-
 #, tao-public
 msgid "Delete"
-msgstr ""
+msgstr "削除"
 
 msgid "Deleting of \"%s"
 msgstr ""
 
 #, tao-public
 msgid "Deliveries"
-msgstr ""
+msgstr "デリバリ"
 
 #, tao-public
 msgid "Deliveries library"
@@ -82,7 +75,7 @@ msgstr ""
 msgid "Delivery \"%s\" successfully imported"
 msgstr ""
 
-msgid "Delivery \'%s\' not found"
+msgid "Delivery \\'%s\\' not found"
 msgstr ""
 
 msgid "Delivery class uri provided is not a valid delivery class."
@@ -100,11 +93,11 @@ msgstr ""
 msgid "Delivery with label \"%s\" not found"
 msgstr ""
 
-msgid "Directory %s doesn\'t exist"
+msgid "Directory %s doesn\\'t exist"
 msgstr ""
 
 msgid "Error"
-msgstr ""
+msgstr "エラー"
 
 msgid "Excluded test-takers"
 msgstr ""
@@ -116,12 +109,12 @@ msgid "Exporting %s"
 msgstr ""
 
 msgid "Guest access"
-msgstr ""
+msgstr "ゲストアクセス"
 
 msgid "Import QTI test and create delivery."
 msgstr ""
 
-msgid "Importing %1$s files into \'%2$s\'"
+msgid "Importing %1$s files into \\'%2$s\\'"
 msgstr ""
 
 msgid "Last updated on:"
@@ -129,23 +122,23 @@ msgstr ""
 
 #, tao-public
 msgid "Manage Schema"
-msgstr ""
+msgstr "スキーム管理"
 
 #, tao-public
 msgid "Manage tests"
-msgstr ""
+msgstr "テスト管理"
 
 #, tao-public
 msgid "Move"
-msgstr ""
+msgstr "移動"
 
 #, tao-public
 msgid "Move To"
-msgstr ""
+msgstr "移動"
 
 #, tao-public
 msgid "New class"
-msgstr ""
+msgstr "新規クラス"
 
 #, tao-public
 msgid "New delivery"
@@ -163,11 +156,11 @@ msgstr ""
 
 #, tao-public
 msgid "Properties"
-msgstr ""
+msgstr "プロパティ"
 
 #, tao-public
 msgid "Publish"
-msgstr ""
+msgstr "公開"
 
 msgid "Publish \"%s\" to"
 msgstr ""
@@ -182,7 +175,7 @@ msgid "Publishing of <b>%s</b>"
 msgstr ""
 
 msgid "Save"
-msgstr ""
+msgstr "保存"
 
 msgid "Select the test"
 msgstr ""
@@ -197,20 +190,20 @@ msgid "TAO Guest"
 msgstr ""
 
 msgid "TAO Guest Access"
-msgstr ""
+msgstr "TAOゲストアクセス"
 
 msgid "Test publishing failed because \"%s\" is empty."
 msgstr ""
 
 msgid "Test-takers"
-msgstr ""
+msgstr "受験者"
 
 #, tao-public
 msgid "Tests"
-msgstr ""
+msgstr "テスト"
 
 msgid "The test \"%s\" does not contain any items and cannot be published."
-msgstr "テスト \"%s\" にはアイテムが含まれておらず、公開できません。"
+msgstr ""
 
 msgid "There are currently %s attempts"
 msgstr ""

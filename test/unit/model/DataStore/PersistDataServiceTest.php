@@ -22,78 +22,58 @@ declare(strict_types=1);
 
 namespace oat\taoDeliveryRdf\test\unit\model\DataStore;
 
-use oat\generis\test\TestCase;
+use oat\generis\test\ServiceManagerMockTrait;
+use oat\taoDeliveryRdf\model\DataStore\DeliverySyncTask;
+use oat\taoDeliveryRdf\model\DataStore\PrepareDataService;
+use oat\taoDeliveryRdf\model\DataStore\ResourceSyncDTO;
+use PHPUnit\Framework\TestCase;
 use oat\oatbox\filesystem\FileSystem;
 use oat\oatbox\filesystem\FileSystemService;
 use oat\tao\helpers\FileHelperService;
 use oat\taoDeliveryRdf\model\DataStore\PersistDataService;
-use PHPUnit\Framework\MockObject\MockObject;
-use taoQtiTest_models_classes_export_TestExport22;
+use tao_models_classes_export_ExportHandler;
 
 class PersistDataServiceTest extends TestCase
 {
-    /** @var FileSystemService|MockObject */
-    private $filesystemService;
+    use ServiceManagerMockTrait;
 
-    /** @var FileHelperService|MockObject */
-    private $filesystemHelper;
-    /** @var MockObject|taoQtiTest_models_classes_export_TestExport22 */
-    private $exporterHelper;
-
-    /** @var FileSystem|MockObject */
-    private $fileSystem;
-
-    /** @var PersistDataService */
-    private $subject;
+    private FileSystemService $filesystemService;
+    private FileHelperService $filesystemHelper;
+    private tao_models_classes_export_ExportHandler $exporterHelper;
+    private FileSystem $fileSystem;
+    private PersistDataService $subject;
 
     protected function setUp(): void
     {
         parent::setUp();
-
+        $this->exporterHelper = $this->createMock(tao_models_classes_export_ExportHandler::class);
         $this->filesystemService = $this->createMock(FileSystemService::class);
         $this->filesystemHelper = $this->createMock(FileHelperService::class);
-        $this->exporterHelper = $this->createMock(taoQtiTest_models_classes_export_TestExport22::class);
         $this->fileSystem = $this->createMock(FileSystem::class);
 
-        $serviceLocator = $this->getServiceLocatorMock([
+        $serviceLocator = $this->getServiceManagerMock([
             FileSystemService::SERVICE_ID => $this->filesystemService,
             FileHelperService::class => $this->filesystemHelper,
         ]);
 
         $this->subject = new PersistDataService(
-            [PersistDataService::OPTION_EXPORTER_SERVICE => $this->exporterHelper]
+            [
+                PersistDataService::OPTION_EXPORTER_SERVICE => $this->exporterHelper,
+            ]
         );
 
         $this->subject->setServiceLocator($serviceLocator);
     }
 
-    /**
-     * @dataProvider provideDataForPersist
-     *
-     */
-    public function testPersist($params): void
+    public function testPersist(): void
     {
-        $this->filesystemHelper->expects($this->once())->method('createTempDir')
+        $this->filesystemHelper
+            ->expects($this->once())
+            ->method('createTempDir')
             ->willReturn('bogusTestDirLocation');
 
         $this->exporterHelper->expects($this->once())->method('export')->willReturn(true);
 
-        $this->subject->persist($params);
-    }
-
-    public function provideDataForPersist(): array
-    {
-        return [
-            [
-                [
-                    'deliveryId' => 'bogus',
-                    'testUri' => 'testBogus',
-                    'deliveryMetaData' => [],
-                    'testMetaData' => [],
-                    'itemMetaData' => [],
-
-                ], ''
-            ]
-        ];
+        $this->subject->persist(new ResourceSyncDTO('bogus', 'dataStore', 'testBogus'));
     }
 }
